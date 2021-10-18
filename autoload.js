@@ -6,6 +6,7 @@ const live2d_path = "https://cdn.jsdelivr.net/gh/ToryPleiades/live2d-widget@mast
 function loadExternalResource(url, type) {
 	return new Promise((resolve, reject) => {
 		let tag;
+		
 
 		if (type === "css") {
 			tag = document.createElement("link");
