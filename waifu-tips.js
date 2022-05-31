@@ -20,13 +20,15 @@ function loadWidget(config) {
 	document.body.insertAdjacentHTML("beforeend", `<div id="waifu">
 			<div id="waifu-tips"></div>
 			<canvas id="live2d" width="800" height="800"></canvas>
-			<!-- <div id="waifu-tool">
+			<div id="waifu-tool">
 				<span class="fa fa-lg fa-comment"></span>
+				<span class="fa fa-lg fa-paper-plane"></span>
+				<span class="fa fa-lg fa-user-circle"></span>
 				<span class="fa fa-lg fa-street-view"></span>
 				<span class="fa fa-lg fa-camera-retro"></span>
 				<span class="fa fa-lg fa-info-circle"></span>
 				<span class="fa fa-lg fa-times"></span>
-			</div> -->
+			</div>
 		</div>`);
 	// https://stackoverflow.com/questions/24148403/trigger-css-transition-on-appended-element
 	setTimeout(() => {
@@ -56,8 +58,18 @@ function loadWidget(config) {
 	}, 1000);
 
 	(function registerEventListener() {
-		/*
 		document.querySelector("#waifu-tool .fa-comment").addEventListener("click", showHitokoto);
+		document.querySelector("#waifu-tool .fa-paper-plane").addEventListener("click", () => {
+			if (window.Asteroids) {
+				if (!window.ASTEROIDSPLAYERS) window.ASTEROIDSPLAYERS = [];
+				window.ASTEROIDSPLAYERS.push(new Asteroids());
+			} else {
+				const script = document.createElement("script");
+				script.src = "https://fastly.jsdelivr.net/gh/stevenjoezhang/asteroids/asteroids.js";
+				document.head.appendChild(script);
+			}
+		});
+		document.querySelector("#waifu-tool .fa-user-circle").addEventListener("click", loadOtherModel);
 		document.querySelector("#waifu-tool .fa-street-view").addEventListener("click", loadRandModel);
 		document.querySelector("#waifu-tool .fa-camera-retro").addEventListener("click", () => {
 			showMessage("照好了嘛，是不是很可爱呢？", 6000, 9);
@@ -65,7 +77,7 @@ function loadWidget(config) {
 			Live2D.captureFrame = true;
 		});
 		document.querySelector("#waifu-tool .fa-info-circle").addEventListener("click", () => {
-			open("https://github.com/ToryPleiades/live2d-widget");
+			open("https://github.com/stevenjoezhang/live2d-widget");
 		});
 		document.querySelector("#waifu-tool .fa-times").addEventListener("click", () => {
 			localStorage.setItem("waifu-display", Date.now());
@@ -76,7 +88,6 @@ function loadWidget(config) {
 				document.getElementById("waifu-toggle").classList.add("waifu-toggle-active");
 			}, 3000);
 		});
-		*/
 		const devtools = () => {};
 		console.log("%c", devtools);
 		devtools.toString = () => {
@@ -146,23 +157,14 @@ function loadWidget(config) {
 		}, timeout);
 	}
 
-	function randomNum(minNum, maxNum){ 
-		switch(arguments.length){ 
-			case 1: 
-				return parseInt(Math.random() * minNum + 1, 10);
-			case 2: 
-				return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
-		} 
-	} 
-
 	(function initModel() {
 		let modelId = localStorage.getItem("modelId"),
 			modelTexturesId = localStorage.getItem("modelTexturesId");
-		//if (modelId === null) {
+		if (modelId === null) {
 			// 首次访问加载 指定模型 的 指定材质
-			modelId = 5; // 模型 ID
-			modelTexturesId = randomNum(5, 8); // 材质 ID
-		//}
+			modelId = 1; // 模型 ID
+			modelTexturesId = 53; // 材质 ID
+		}
 		loadModel(modelId, modelTexturesId);
 		fetch(waifuPath)
 			.then(response => response.json())
@@ -210,7 +212,7 @@ function loadWidget(config) {
 		showMessage(message, 4000, 10);
 		if (useCDN) {
 			if (!modelList) await loadModelList();
-			const target = randomSelection(modelList.models[modelId][modelTexturesId]);
+			const target = randomSelection(modelList.models[modelId]);
 			loadlive2d("live2d", `${cdnPath}model/${target}/index.json`);
 		} else {
 			loadlive2d("live2d", `${apiPath}get/?id=${modelId}-${modelTexturesId}`);
@@ -223,7 +225,7 @@ function loadWidget(config) {
 			modelTexturesId = localStorage.getItem("modelTexturesId");
 		if (useCDN) {
 			if (!modelList) await loadModelList();
-			const target = randomSelection(modelList.models[modelId][modelTexturesId]);
+			const target = randomSelection(modelList.models[modelId]);
 			loadlive2d("live2d", `${cdnPath}model/${target}/index.json`);
 			showMessage("我的新衣服好看嘛？", 4000, 10);
 		} else {
